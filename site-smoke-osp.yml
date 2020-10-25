@@ -34,7 +34,7 @@
     loop_control:
       loop_var: __frontend
     register: webpage
-    until: "alive" in webpage.content
+    until: '"alive" in webpage.content'
     retries: 10
     delay: 1
 
