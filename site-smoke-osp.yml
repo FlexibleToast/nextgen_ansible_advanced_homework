@@ -18,15 +18,7 @@
     tags:
       - osp.smoke
 
-- name: Test connection between app server and frontend
-  hosts: apps
-  gather_facts: false
-  tags:
-    - osp.smoke
-
-  tasks:
-
-  - name: Curl website
+  - name: Curl website from workstation
     uri:
       url: "http://{{ __frontend }}/ping"
       return_content: yes
@@ -37,9 +29,5 @@
     until: '"alive" in webpage.content'
     retries: 10
     delay: 1
-
-  # - name: Fail if 'Ansible has done its job' is not in the page content
-  #   fail:
-  #   when: "'Ansible has done its job' not in webpage.results[0].content"
-  #   tags:
-  #     - osp.smoke
+    tags:
+      - osp.smoke
