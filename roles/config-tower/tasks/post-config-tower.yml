@@ -8,6 +8,12 @@
     scm_type: git
     state: present
 
+- name: Change admin user password
+  tower_user:
+    username: '{{ user_name }}'
+    password: '{{ password }}'
+    state: present
+
 - name: Machine Credentail to connect to workstation using openstack.pub
   tower_credential:
     name: Connect_to_workstation
