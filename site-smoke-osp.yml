@@ -1,25 +1,39 @@
 - hosts: workstation
   gather_facts: false
+
+  roles:
+  - name: osp-facts
+
   tasks:
 
-  - name: OpenStack servers
-    os_server_info:
-      cloud: openstack
-      server: frontend
-    register: frontend_servers
+  - name: Smoketest Postgres database
+  postgresql_ping:
+    db: flask_db
+    login_host: "{{ groups.appdbs.ansible_default_ipv4.address }}"
+    login_user: flask
+    login_password: redhat
+    ssl_mode: disable
+  delegate_to: "{{ groups.apps[0] }}"
+  run_once: true
+  tags:
+    - osp.smoke
 
-  - name: Curl website
-    uri:
-      url: "http://{{ __frontend.public_v4 }}"
-      return_content: yes
-      status_code: 200
-    loop: frontend_servers
-    loop_control:
-      loop_var: __frontend
-    register: webpage
+- name: Curl website
+  uri:
+    url: "http://{{ __frontend.public_v4 }}/ping"
+    return_content: yes
+  loop: frontends
+  loop_control:
+    loop_var: __frontend
+  register: webpage
+  until: '"alive" in webpage.content'
+  retries: 10
+  delay: 1
+  tags:
+    - osp.smoke
 
-  - name: Fail if 'Ansible has done its job' is not in the page content
-    fail:
-    when: "'Ansible has done its job' not in webpage.results[0].content"
-    tags:
-      - osp.smoke
+  # - name: Fail if 'Ansible has done its job' is not in the page content
+  #   fail:
+  #   when: "'Ansible has done its job' not in webpage.results[0].content"
+  #   tags:
+  #     - osp.smoke
