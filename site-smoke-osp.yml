@@ -9,7 +9,7 @@
   - name: Smoketest Postgres database
     postgresql_ping:
       db: flask_db
-      login_host: "{{ groups.appdbs.ansible_default_ipv4.address }}"
+      login_host: "{{ groups.appdbs[0] }}"
       login_user: flask
       login_password: redhat
       ssl_mode: disable
@@ -18,19 +18,25 @@
     tags:
       - osp.smoke
 
+- name: Test connection between app server and frontend
+  hosts: apps
+  gather_facts: false
+  tags:
+    - osp.smoke
+
+  tasks:
+
   - name: Curl website
     uri:
-      url: "http://{{ __frontend.public_v4 }}/ping"
+      url: "http://{{ __frontend }}/ping"
       return_content: yes
     loop: frontends
     loop_control:
       loop_var: __frontend
     register: webpage
-    until: '"alive" in webpage.content'
+    until: "alive" in webpage.content
     retries: 10
     delay: 1
-    tags:
-      - osp.smoke
 
   # - name: Fail if 'Ansible has done its job' is not in the page content
   #   fail:
