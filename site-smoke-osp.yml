@@ -30,7 +30,7 @@
     uri:
       url: "http://{{ __frontend }}/ping"
       return_content: yes
-    loop: frontends
+    loop: '{{ frontends }}'
     loop_control:
       loop_var: __frontend
     register: webpage
