@@ -34,13 +34,13 @@
   loop_control:
     loop_var: __instance
 
-- os_server_facts:
+- os_server_info:
     cloud: openstack
   register: servers
 
 - name: Wait for server to be available
   wait_for:
-    host: '{{ item.public_v4 }}'
+    host: '{{ item }}'
     port: 22
     search_regex: OpenSSH
     timeout: 600
