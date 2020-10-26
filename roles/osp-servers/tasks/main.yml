@@ -17,7 +17,7 @@
       #!/bin/bash
       curl -o /tmp/openstack.pub http://www.opentlc.com/download/ansible_bootcamp/openstack_keys/openstack.pub
       cat /tmp/openstack.pub >> /home/cloud-user/.ssh/authorized_keys
-  loop: "{{ osp_servers }}"
+  loop: '{{ osp_servers }}'
   loop_control:
     loop_var: __instance
 
@@ -26,10 +26,23 @@
     cloud: "{{ __instance.cloud | default('openstack') }}"
     state: present
     reuse: yes
-    server: "{{ __instance.name }}"
+    server: '{{ __instance.name }}'
     network: ext_network
     wait: true
     timeout: 200
-  loop: "{{ osp_servers }}"
+  loop: '{{ osp_servers }}'
   loop_control:
     loop_var: __instance
+
+- os_server_facts:
+    cloud: openstack
+  register: servers
+
+- name: Wait for server to be available
+  wait_for:
+    host: '{{ item.public_v4 }}'
+    port: 22
+    search_regex: OpenSSH
+    timeout: 600
+  delegate_to: '{{ localhost }}'
+  loop: '{{ servers.openstack_servers }}'
