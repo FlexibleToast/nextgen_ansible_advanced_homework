@@ -40,7 +40,7 @@
 
 - name: Wait for server to be available
   wait_for:
-    host: '{{ item }}'
+    host: '{{ item.public_v4 }}'
     port: 22
     search_regex: OpenSSH
     timeout: 600
